@@ -47,7 +47,7 @@ for element in file_list:
         jahr = "NA"
 
     #build new TEI
-    TEI_root = ET.Element("TEI" ,xmlns='http://www.tei-c.org/​ns/ ​1.0')
+    TEI_root = ET.Element("TEI" ,xmlns='http://www.tei-c.org/ns/1.0')
 
     #header
     header = ET.SubElement(TEI_root, "teiHeader")
@@ -80,7 +80,7 @@ for element in file_list:
     #open tei
     filename = element['Titel'] + '.xml'
     path = os.path.join(r'C:\Users\lisak\Documents\Uni\Master\Masterarbeit\Mären\Gesamtabenteuer Band 1\TEIs', filename)
-    if filename == "Alten_Weibes_List.xml" or filename == "Drei_listige_Frauen.xml" or filename == "Crescentia.xml" or filename == "Der_Busant.xml" or filename == "Der_Jungherr_und_der_treue_Heinrich.xml" or filename == "Die_Eule_und_der_Habicht.xml" or filename == "Die_Rebhuehner.xml"  or filename == "Gegen_Gleichgeschlechtlichkeit.xml" or filename == "Helmbrecht.xml" or filename == "Meister_Irregang.xml" or filename == "Die_treue_Magd.xml" :
+    if filename ==  filename == "Crescentia.xml" or filename == "Der_Busant.xml" or filename == "Der_Jungherr_und_der_treue_Heinrich.xml" or filename == "Die_Eule_und_der_Habicht.xml" or filename == "Die_Rebhuehner.xml"  or filename == "Gegen_Gleichgeschlechtlichkeit.xml" or filename == "Helmbrecht.xml" or filename == "Meister_Irregang.xml" or filename == "Die_treue_Magd.xml" :
         continue
     opened = open(path)
     content = opened.read()
@@ -92,7 +92,7 @@ for element in file_list:
     #print into new xml file
     tree = ET.ElementTree(TEI_root)
     ET.indent(tree, space="\t", level=0)
-    tree.write(filename)
+    tree.write(filename, encoding="UTF-8")
 
 
 
