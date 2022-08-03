@@ -14,7 +14,7 @@ from sklearn import decomposition
 
 #supervised knn
 #import data
-data = pd.read_excel (r'C:\Users\lisak\Documents\Uni\Master\Masterarbeit\Metriken_Test.xlsx', sheet_name='Korpus')
+data = pd.read_excel (r'C:\Users\lisak\Documents\Uni\Master\Masterarbeit\Statistiken_und_Metriken_Berechnung.xlsx', sheet_name='Korpus')
 korpus = pd.DataFrame(data, columns= ['Name','Degree Durchschnitt','Betweenness Durchschnitt','Closeness Durchschnitt','Eigenvector Durchschnitt','Label','Betrüger',
                                       'Betrogener','Liebender','Liebende','Gegenspieler'])
 korpus.columns = ['Name','Degree Durchschnitt','Betweenness Durchschnitt','Closeness Durchschnitt','Eigenvector Durchschnitt','Label','Betrüger',
@@ -79,7 +79,7 @@ plt.show()
 
 #unsupervised kmeans
 y_unsupervised = pd.DataFrame(data, columns=['Label'])
-km= KMeans(n_clusters=4)
+km= KMeans(n_clusters=4, random_state=8)
 y_predicted = km.fit_predict(korpus[['Degree Durchschnitt','Betweenness Durchschnitt','Closeness Durchschnitt','Eigenvector Durchschnitt']])
 #print(y_predicted)
 korpus['pred_unsupervised'] = y_predicted
@@ -92,7 +92,7 @@ pca_df = pd.DataFrame(new_korpus, columns = ['Component_1', 'Component_2'])
 label = korpus['Label']
 
 #unsupervised kmeans with PCA
-km= KMeans(n_clusters=4)
+km= KMeans(n_clusters=4, random_state=8)
 pca_y_predicted = km.fit_predict(pca_df[['Component_1','Component_2']])
 pca_df['pred_pca'] = pca_y_predicted
 pca_df['og_label'] = label
@@ -101,40 +101,43 @@ pca_df['Name'] = korpus['Name']
 
 #scatterplots
 #Component 1 vs Component 2
+colors = ['green', 'red', 'black', 'blue']
 pca_df1= pca_df[pca_df.pred_pca==0]
 pca_df2= pca_df[pca_df.pred_pca==1]
 pca_df3= pca_df[pca_df.pred_pca==2]
 pca_df4= pca_df[pca_df.pred_pca==3]
-plt.scatter(pca_df1['Component_1'],pca_df1['Component_2'], color = 'green')
-plt.scatter(pca_df2['Component_1'],pca_df2['Component_2'], color = 'red')
-plt.scatter(pca_df3['Component_1'],pca_df3['Component_2'], color = 'black')
-plt.scatter(pca_df4['Component_1'],pca_df4['Component_2'], color = 'blue')
-plt.xlim(-0.75, 1)
-plt.ylim(-0.75, 1)
+a = plt.scatter(pca_df1['Component_1'],pca_df1['Component_2'], color = colors[0])
+b = plt.scatter(pca_df2['Component_1'],pca_df2['Component_2'], color = colors[1])
+c = plt.scatter(pca_df3['Component_1'],pca_df3['Component_2'], color = colors[2])
+d = plt.scatter(pca_df4['Component_1'],pca_df4['Component_2'], color = colors[3])
+plt.xlim(-1.5, 2)
+plt.ylim(-1.5, 2)
 plt.xlabel('Component_1')
 plt.ylabel('Component_2')
 plt.title ("Plot_unsupervised_with_PCA_colors_new_labels")
-plt.legend((0,1,2,3))
+plt.legend((a,b,c,d), ('0','1','2','3'),title="Predicted Label")
 plt.show()
 #export to excel
-#pca_df.to_excel('pred_label.xlsx')
+pca_df.to_excel('pred_label.xlsx')
 
 #Component 1 vs Component 2 with colors of the original labels
+colors = ['green', 'red', 'black', 'blue']
 pca_df1= pca_df[pca_df.og_label==1]
 pca_df2= pca_df[pca_df.og_label==2]
 pca_df3= pca_df[pca_df.og_label==3]
 pca_df4= pca_df[pca_df.og_label==4]
-plt.scatter(pca_df1['Component_1'],pca_df1['Component_2'], color = 'green')
-plt.scatter(pca_df2['Component_1'],pca_df2['Component_2'], color = 'red')
-plt.scatter(pca_df3['Component_1'],pca_df3['Component_2'], color = 'black')
-plt.scatter(pca_df4['Component_1'],pca_df4['Component_2'], color = 'blue')
-plt.xlim(-0.75, 1)
-plt.ylim(-0.75, 1)
+a = plt.scatter(pca_df1['Component_1'],pca_df1['Component_2'], color = colors[0])
+b= plt.scatter(pca_df2['Component_1'],pca_df2['Component_2'], color = colors[1])
+c = plt.scatter(pca_df3['Component_1'],pca_df3['Component_2'], color = colors[2])
+d = plt.scatter(pca_df4['Component_1'],pca_df4['Component_2'], color = colors[3])
+plt.xlim(-1.5, 2)
+plt.ylim(-1.5, 2)
 plt.xlabel('Component_1')
 plt.ylabel('Component_2')
 plt.title ("Plot_unsupervised_with_PCA_colors_og_labels")
-plt.legend((1,2,3,4))
+plt.legend((a,b,c,d), ('1','2','3','4'), title="True Label")
 plt.show()
+
 #Confusion Matrix
 conf_m = confusion_matrix(pca_df['og_label'], pca_y_predicted)
 disp = ConfusionMatrixDisplay(conf_m)
@@ -142,8 +145,8 @@ disp.plot()
 disp.ax_.set_title("CM_unsupervised_with_PCA")
 plt.show()
 
-#print("Scores for unsupervised with PCA \n")
-#print(classification_report(label, pca_y_predicted))
+print("Scores for unsupervised with PCA \n")
+print(classification_report(korpus['Label'], pca_y_predicted))
 #print("Overall F1-Score")
 #print(f1_score(label, pca_y_predicted, average='micro'))
 
@@ -157,46 +160,48 @@ pca_korpus_bez = pca.transform(korpus[['Degree Durchschnitt','Betweenness Durchs
 pca_df_bez = pd.DataFrame(pca_korpus_bez, columns = ['Component_1', 'Component_2'])
 
 #unsupervised kmeans with PCA
-km= KMeans(n_clusters=4)
+km= KMeans(n_clusters=4,random_state=8)
 pca_y_bez_pred = km.fit_predict(pca_df_bez[['Component_1','Component_2']])
 pca_df_bez['pred'] = pca_y_bez_pred
 pca_df_bez['og_label'] = korpus['Label']
 pca_df_bez['Name'] = korpus['Name']
 
 #Component 1 vs Component 2
+colors = ['green', 'red', 'black', 'blue']
 pca_bez_df1= pca_df_bez[pca_df_bez.pred==0]
 pca_bez_df2= pca_df_bez[pca_df_bez.pred==1]
 pca_bez_df3= pca_df_bez[pca_df_bez.pred==2]
 pca_bez_df4= pca_df_bez[pca_df_bez.pred==3]
-plt.scatter(pca_bez_df1['Component_1'],pca_bez_df1['Component_2'], color = 'green')
-plt.scatter(pca_bez_df2['Component_1'],pca_bez_df2['Component_2'], color = 'red')
-plt.scatter(pca_bez_df3['Component_1'],pca_bez_df3['Component_2'], color = 'black')
-plt.scatter(pca_bez_df4['Component_1'],pca_bez_df4['Component_2'], color = 'blue')
+a = plt.scatter(pca_bez_df1['Component_1'],pca_bez_df1['Component_2'], color = colors[0])
+b = plt.scatter(pca_bez_df2['Component_1'],pca_bez_df2['Component_2'], color = colors[1])
+c = plt.scatter(pca_bez_df3['Component_1'],pca_bez_df3['Component_2'], color = colors[2])
+d = plt.scatter(pca_bez_df4['Component_1'],pca_bez_df4['Component_2'], color = colors[3])
 plt.xlabel('Component_1')
 plt.ylabel('Component_2')
 plt.title ("Plot_unsupervised_with_PCA_with_Bez_colors_new_labels")
-plt.legend((0,1,2,3))
+plt.legend((a,b,c,d), ('0','1','2','3'),title="Predicted Label")
 plt.show()
 #export to excel
-#pca_df_bez.to_excel('pred_label_bez.xlsx')
+pca_df_bez.to_excel('pred_label_bez.xlsx')
 
 #Component 1 vs Component 2 with colors of the original labels
+colors = ['green', 'red', 'black', 'blue']
 pca_bez_df1= pca_df_bez[pca_df_bez.og_label==1]
 pca_bez_df2= pca_df_bez[pca_df_bez.og_label==2]
 pca_bez_df3= pca_df_bez[pca_df_bez.og_label==3]
 pca_bez_df4= pca_df_bez[pca_df_bez.og_label==4]
-plt.scatter(pca_bez_df1['Component_1'],pca_bez_df1['Component_2'], color = 'green')
-plt.scatter(pca_bez_df2['Component_1'],pca_bez_df2['Component_2'], color = 'red')
-plt.scatter(pca_bez_df3['Component_1'],pca_bez_df3['Component_2'], color = 'black')
-plt.scatter(pca_bez_df4['Component_1'],pca_bez_df4['Component_2'], color = 'blue')
+a = plt.scatter(pca_bez_df1['Component_1'],pca_bez_df1['Component_2'], color = colors[0])
+b = plt.scatter(pca_bez_df2['Component_1'],pca_bez_df2['Component_2'], color = colors[1])
+c = plt.scatter(pca_bez_df3['Component_1'],pca_bez_df3['Component_2'], color = colors[2])
+d = plt.scatter(pca_bez_df4['Component_1'],pca_bez_df4['Component_2'], color = colors[3])
 plt.xlabel('Component_1')
 plt.ylabel('Component_2')
 plt.title ("Plot_unsupervised_with_PCA_with_Bez_colors_og_labels")
-plt.legend((1,2,3,4))
+plt.legend((a,b,c,d), ('1','2','3','4'),title="True Label")
 plt.show()
 
-#print("Scores for unsupervised with PCA with Bezeichnung \n")
-#print(classification_report(korpus['Label'], pca_y_bez_pred))
+print("Scores for unsupervised with PCA with Bezeichnung \n")
+print(classification_report(korpus['Label'], pca_y_bez_pred))
 #print("Overall F1-Score")
 #print(f1_score(korpus['Label'], pca_y_bez_pred, average='micro'))
 
